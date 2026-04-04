@@ -1,44 +1,74 @@
 services:
    palworld:
       image: ludix0/palworld:latest
+      cpus: '5'
       restart: unless-stopped
       container_name: palworld
       environment:
-          # ajouter des arguments 
-        - Arguments="-useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS"
+          # Utilisateur
+        - PUID=1000
+        - PGID=1000
+
+          # Mettre false pour ne pas mettre à jour le jeu au démarrage
+        - UPDATE_ON_START=true
+
+          # Arguments de lancement
+          # -NumberOfWorkerThreadsServer=X : nombre de threads (max = nb coeurs - 1)
+        - Arguments=-useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS -NumberOfWorkerThreadsServer=7
+
+          # Difficulté
         - Difficulty=None
+
+          # Vitesse du temps
         - DayTimeSpeedRate=1.000000
         - NightTimeSpeedRate=1.000000
+
+          # Gains
         - ExpRate=1.000000
         - PalCaptureRate=1.000000
         - PalSpawnNumRate=1.000000
+
+          # Dégâts
         - PalDamageRateAttack=1.000000
         - PalDamageRateDefense=1.000000
         - PlayerDamageRateAttack=1.000000
         - PlayerDamageRateDefense=1.000000
+
+          # Survie joueur
         - PlayerStomachDecreaceRate=1.000000
         - PlayerStaminaDecreaceRate=1.000000
         - PlayerAutoHPRegeneRate=1.000000
         - PlayerAutoHpRegeneRateInSleep=1.000000
+
+          # Survie pal
         - PalStomachDecreaceRate=1.000000
         - PalStaminaDecreaceRate=1.000000
         - PalAutoHPRegeneRate=1.000000
         - PalAutoHpRegeneRateInSleep=1.000000
+
+          # Construction
         - BuildObjectDamageRate=1.000000
         - BuildObjectDeteriorationDamageRate=1.000000
+
+          # Collecte
         - CollectionDropRate=1.000000
         - CollectionObjectHpRate=1.000000
         - CollectionObjectRespawnSpeedRate=1.000000
         - EnemyDropItemRate=1.000000
 
           # Peine de mort
-          # None : Aucun drop - Item : Drop tous les objets sauf l'équipement
-          # ItemAndEquipment : Drop tous les objets 
-          # All : Drop tous les objets et tous les amis de l'équipe
+          # None : Aucun drop
+          # Item : Drop tous les objets sauf l'équipement
+          # ItemAndEquipment : Drop tous les objets
+          # All : Drop tous les objets et tous les pals de l'équipe
         - DeathPenalty=ItemAndEquipment
+
+          # PvP
         - bEnablePlayerToPlayerDamage=False
         - bEnableFriendlyFire=False
         - bEnableInvaderEnemy=False
+
+          # Divers gameplay
         - bActiveUNKO=False
         - bEnableAimAssistPad=True
         - bEnableAimAssistKeyboard=False
@@ -62,22 +92,35 @@ services:
         - bEnableDefenseOtherGuildPlayer=False
         - CoopPlayerMaxNum=4
         - ServerPlayerMaxNum=4
+
+          # Infos serveur
         - ServerName=Ludix_palworld_FR
         - ServerDescription=
         - AdminPassword=
         - ServerPassword=
         - PublicIP=
+
+          # RCON
         - RCONEnabled=False
         - Region=
-        - bUseAuth=True
-        - BanListURL="https://api.palworldgame.com/api/banlist.txt"
+
+          # Auth & Banlist
+        - bUseAuth=False
+        - BanListURL=
+
+          # API & affichage
         - RESTAPIEnabled=False
         - bShowPlayerList=False
-        - AllowConnectPlatform=Steam
+
+          # Plateformes autorisées (remplace AllowConnectPlatform depuis 0.7.2)
+        - CrossplayPlatforms=(Steam)
+
+          # Sauvegarde
         - bIsUseBackupSaveData=True
 
-      volumes: 
-        - $HOME/volumes/palworld/data:/server
+      volumes:
+        - ${HOME}/volumes/palworld/filesServer:/server
+        - ${HOME}/volumes/steamcmd:/home/jeux/.steam/steam/steamcmd
       ports:
-        - 7776:8211/udp
-        - 7775:8212/udp
+        - 7777:8211/udp
+        - 7776:8212/udp
