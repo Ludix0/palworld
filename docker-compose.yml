@@ -4,7 +4,12 @@ services:
       cpus: '5'
       restart: unless-stopped
       container_name: palworld
+          # Identifiants Steam centralisés, partagés entre serveurs de jeux
+          # Laisser le fichier vide pour une connexion anonyme
+      env_file:
+        - ${HOME}/volumes/secrets/steam-account.env
       environment:
+        - TZ=Europe/Paris
           # Utilisateur
         - PUID=1000
         - PGID=1000
@@ -121,6 +126,7 @@ services:
       volumes:
         - ${HOME}/volumes/palworld/filesServer:/server
         - ${HOME}/volumes/steamcmd:/home/jeux/.steam/steam/steamcmd
+        - ${HOME}/volumes/steamcmd-config:/home/jeux/.steam/steam/config
       ports:
         - 7777:8211/udp
         - 7776:8212/udp

@@ -17,7 +17,22 @@ chown -R jeux:jeux /home/jeux
 # --- Mise à jour / installation via SteamCMD ---
 if [ "$UPDATE_ON_START" = "true" ] || [ ! -f "/server/PalServer.sh" ]; then
     echo "--- Mise à jour / installation du serveur Palworld (SteamCMD) ---"
-    gosu jeux steamcmd +force_install_dir /server +login anonymous +app_update 2394010 validate +quit
+    if [ -n "$STEAM_USER" ]; then
+        echo "--- Connexion avec le compte Steam: $STEAM_USER ---"
+        LOGIN_ARGS=(+login "$STEAM_USER" "$STEAM_PASSWORD")
+    else
+        LOGIN_ARGS=(+login anonymous)
+    fi
+    for i in 1 2 3; do
+        gosu jeux steamcmd \
+            +@sSteamCmdForcePlatformType linux \
+            +force_install_dir /server \
+            "${LOGIN_ARGS[@]}" \
+            +app_update 2394010 validate \
+            +quit && break
+        echo "--- Tentative $i échouée, nouvel essai dans 10s ---"
+        sleep 10
+    done
 else
     echo "--- Saut de la mise à jour (UPDATE_ON_START=false) ---"
 fi
